@@ -37,6 +37,7 @@ export interface RawTip {
   amount: string;
   message: string;
   timestamp: number;
+  is_encrypted?: boolean;
 }
 
 /** Raw leaderboard entry before key mapping. */
@@ -93,6 +94,7 @@ export interface Tip {
   amount: string; // i128 as string
   message: string;
   timestamp: number;
+  isEncrypted?: boolean;
 }
 
 /** Leaderboard entry */

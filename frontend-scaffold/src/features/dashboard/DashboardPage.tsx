@@ -231,7 +231,7 @@ const DashboardPage: React.FC = () => {
               <p className="text-sm font-bold text-gray-700">
                 {stroopToXlm(latestTip.amount)} XLM from{" "}
                 {latestTip.tipper.slice(0, 6)}...{latestTip.tipper.slice(-6)}
-                {latestTip.message ? ` - ${latestTip.message}` : ""}
+                {latestTip.isEncrypted ? ' - 🔒 Encrypted message' : latestTip.message ? ` - ${latestTip.message}` : ""}
               </p>
             </div>
           </div>
