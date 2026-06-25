@@ -21,14 +21,16 @@ export function authMiddleware(
   req: Request,
   _res: Response,
   next: NextFunction,
-) {
+): void {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new UnauthorizedError("Missing or invalid authorization header");
+    return next(
+      new UnauthorizedError("Missing or invalid authorization header"),
+    );
   }
 
-  const token = authHeader.substring(7); // Remove "Bearer " prefix
+  const token = authHeader.substring(7);
 
   try {
     const payload = verifyAccessToken(token);
@@ -44,6 +46,35 @@ export function authMiddleware(
  * Alias for authMiddleware for clarity.
  */
 export const requireAuth = authMiddleware;
+
+/**
+ * optionalAuth middleware.
+ * Attaches `req.auth` if a valid Bearer token is present, but never rejects.
+ * Routes that call this can check `req.auth` to distinguish authenticated
+ * from anonymous requests.
+ */
+export function optionalAuth(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next();
+  }
+
+  const token = authHeader.substring(7);
+
+  try {
+    const payload = verifyAccessToken(token);
+    req.auth = payload;
+  } catch {
+    // Invalid/expired token — silently ignore, leave req.auth undefined
+  }
+
+  next();
+}
 
 /**
  * Schema for role validation.

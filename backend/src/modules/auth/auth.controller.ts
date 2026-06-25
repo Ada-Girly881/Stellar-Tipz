@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { z } from "zod";
-import { BadRequestError } from "../../common/errors/AppError.js";
+import {
+  BadRequestError,
+  NotFoundError,
+} from "../../common/errors/AppError.js";
 import { prisma } from "../../db/prisma.js";
 import {
   createChallenge,
@@ -19,7 +22,7 @@ export async function challengeController(
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+): Promise<void> {
   try {
     const { stellarAddress, network } = challengeSchema.parse(req.body);
     const response = await createChallenge(stellarAddress, network);
@@ -41,7 +44,7 @@ export async function verifyController(
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+): Promise<void> {
   try {
     const { stellarAddress, signature, challenge, network } =
       verifySchema.parse(req.body);
@@ -63,13 +66,14 @@ export async function verifyController(
 
 /**
  * GET /auth/me
- * Returns the current authenticated user's information.
+ * Returns the current authenticated user's profile summary.
+ * Requires: authMiddleware (populates req.auth).
  */
 export async function meController(
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+): Promise<void> {
   try {
     const auth = req.auth as AuthPayload;
     const user = await prisma.user.findUnique({
@@ -85,7 +89,7 @@ export async function meController(
     });
 
     if (!user) {
-      throw new BadRequestError("User not found");
+      throw new NotFoundError("User not found");
     }
 
     res.json({
@@ -109,7 +113,7 @@ export async function refreshController(
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+): Promise<void> {
   try {
     const { refreshToken } = refreshSchema.parse(req.body);
     const tokens = await refreshTokens(refreshToken);
@@ -131,7 +135,7 @@ export async function logoutController(
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+): Promise<void> {
   try {
     const { refreshToken } = refreshSchema.parse(req.body);
     await revokeRefreshToken(refreshToken);
