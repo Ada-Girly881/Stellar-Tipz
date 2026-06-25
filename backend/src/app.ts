@@ -47,7 +47,7 @@ export function createApp(): Express {
   });
 
   // ── Feature routers mount here ───────────────────────────────
-  // app.use(`${env.API_BASE_PATH}/auth`, authRouter);
+  app.use(`${env.API_BASE_PATH}/auth`, authRouter);
   // app.use(`${env.API_BASE_PATH}/profiles`, profilesRouter);
   // app.use(`${env.API_BASE_PATH}/tips`, tipsRouter);
   // ... (one issue per module)
